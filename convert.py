@@ -7,6 +7,8 @@ import shutil
 import os
 import re
 
+ALL_SUBS = -1
+
 
 # May have problems in case several sub folders contain subs with identical filenames
 def unfold_subs(path):
@@ -14,20 +16,22 @@ def unfold_subs(path):
              for folder in os.listdir(path)
              if re.fullmatch(r'.*subs?.*|.*subtitles.*', os.path.basename(folder).lower())
                and os.path.isdir(os.path.join(path, folder))]
-    print(folders)
     if len(folders) == 0:
         print('No subtitle folders found')
         return
     selected_index = 0
+    # TODO: Check if input in range
     if len(folders) > 1:
         print('Select which subs to unpack:')
         for index, folder in enumerate(folders):
-            print(f"{index}) {folder}")
+            print(f"{index:3}) {folder}")
+        print(f"{ALL_SUBS:3}) All")
         selected_index = int(input('>>'))
     for index, folder in enumerate(folders):
-        if index == selected_index:
+        if selected_index == ALL_SUBS or index == selected_index:
             for sub_file in os.listdir(os.path.join(path, folder)):
-                shutil.copy(os.path.join(path, folder, sub_file), path)
+                if sub_file != '.ignore':
+                    shutil.copy(os.path.join(path, folder, sub_file), path)
         # Make jellyfin ignore folder with subs, but leave it in place
         open(os.path.join(path, folder, '.ignore'), 'a').close()
         # shutil.rmtree(os.path.join(path, file))
