@@ -1,6 +1,7 @@
-# Unfold subs folder
+# Unfold subs folder If several present - ask user (flag)
 # Find changing part of name (without exception)
 # Build se from it and build new file name (Also drop any [])
+# User should be able to provide season number
 import argparse
 import shutil
 import os
@@ -9,12 +10,27 @@ import re
 
 # May have problems in case several sub folders contain subs with identical filenames
 def unfold_subs(path):
-    files = os.listdir(path)
-    for file in files:
-        if re.fullmatch(r'.*subs?.*|.*subtitles.*', os.path.basename(file).lower()):
-            for sub_file in os.listdir(os.path.join(path, file)):
-                shutil.move(os.path.join(path, file, sub_file), path)
-            shutil.rmtree(os.path.join(path, file))
+    folders = [folder
+             for folder in os.listdir(path)
+             if re.fullmatch(r'.*subs?.*|.*subtitles.*', os.path.basename(folder).lower())
+               and os.path.isdir(os.path.join(path, folder))]
+    print(folders)
+    if len(folders) == 0:
+        print('No subtitle folders found')
+        return
+    selected_index = 0
+    if len(folders) > 1:
+        print('Select which subs to unpack:')
+        for index, folder in enumerate(folders):
+            print(f"{index}) {folder}")
+        selected_index = int(input('>>'))
+    for index, folder in enumerate(folders):
+        if index == selected_index:
+            for sub_file in os.listdir(os.path.join(path, folder)):
+                shutil.copy(os.path.join(path, folder, sub_file), path)
+        # Make jellyfin ignore folder with subs, but leave it in place
+        open(os.path.join(path, folder, '.ignore'), 'a').close()
+        # shutil.rmtree(os.path.join(path, file))
 
 
 def rebuild_names(path):
