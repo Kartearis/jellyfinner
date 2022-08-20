@@ -8,6 +8,7 @@ import os
 import re
 
 ALL_SUBS = -1
+PROVIDE_NUMBER = -1
 
 
 # May have problems in case several sub folders contain subs with identical filenames
@@ -38,7 +39,28 @@ def unfold_subs(path):
 
 
 def rebuild_names(path):
-    pass
+    files = [file
+               for file in os.listdir(path)
+               if os.path.isfile(os.path.join(path, file))]
+    for index, value in enumerate(files):
+        # later rename actual files
+        files[index] = re.sub(r"\[.*?]", '', value)
+        print(files)
+    numbers = [match for match in re.finditer(r"\d+", files[0])]
+    print('Select number to act as season:')
+    for index, match in enumerate(numbers):
+        print(f"{index:3}) {match}")
+    print(f"{PROVIDE_NUMBER:3}) Provide season number")
+    season_group = int(input(">>"))
+    if season_group == PROVIDE_NUMBER:
+        print("Enter season number")
+        season_number = int(input('>>'))
+    print('Select number to act as episode:')
+    for index, match in enumerate(numbers):
+        print(f"{index:3}) {match}")
+    episode_group = int(input(">>"))
+    print(f"{season_group}|{episode_group}")
+
 
 
 def construct_argparser():
@@ -51,6 +73,7 @@ if __name__ == '__main__':
     args = construct_argparser()
     for path in args.paths:
         unfold_subs(path)
+        rebuild_names(path)
 
 
 
