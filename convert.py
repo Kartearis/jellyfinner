@@ -2,6 +2,7 @@
 # TODO: Nested subs folders (unfold recursively)
 # TODO: Episode numbers like [01]
 # TODO: Film mode: no episode/season
+# TODO: Ignore files with unsupported extensions! (both while copying subs and renaming files)
 import argparse
 import shutil
 import os
