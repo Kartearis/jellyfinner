@@ -1,7 +1,7 @@
-# Unfold subs folder If several present - ask user (flag)
-# Find changing part of name (without exception)
-# Build se from it and build new file name (Also drop any [])
-# User should be able to provide season number
+#!/bin/python3
+# TODO: Nested subs folders (unfold recursively)
+# TODO: Episode numbers like [01]
+# TODO: Film mode: no episode/season
 import argparse
 import shutil
 import os
@@ -31,7 +31,7 @@ def unfold_subs(path, dry_run = True):
     for index, folder in enumerate(folders):
         if selected_index == ALL_SUBS or index == selected_index:
             for sub_file in os.listdir(os.path.join(path, folder)):
-                if sub_file != '.ignore':
+                if sub_file != '.ignore' and os.path.isfile(os.path.join(path, folder, sub_file)):
                     if dry_run:
                         print(f"Copied {os.path.join(path, folder, sub_file)} to {path}")
                     else:
@@ -102,8 +102,8 @@ def rebuild_names(path, dry_run = True):
         episode_number = int(episode_numbers[episode_group].group(0))
         new_name = (name_parts[0] + f" s{season_number:02}e{episode_number:02} " + name_parts[1])
         # fix extra spaces
-        new_name = re.sub(r" \.", ".", re.sub(r" +", " ", new_name))
-        new_name = re.sub(r"[ \-.]se[ \-.]", '', new_name).strip()
+        new_name = re.sub(r"[ \-.]se[ \-.]", ' ', new_name)
+        new_name = re.sub(r" \.", ".", re.sub(r" +", " ", new_name)).strip()
         if dry_run:
             files[index] = new_name
         else:
